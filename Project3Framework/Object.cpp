@@ -7,12 +7,23 @@
 
 string nameof [] = {"unknown", "integer", "real", "string", "list"};
 
+/********************************************
+Description: This the the Object Constructor.
+It sets the Object to NONE and the intval (int) 
+and realval (double) to 0.
+*********************************************/
 Object::Object()
 {
 	type = NONE;
 	intval = realval = 0;
 }
 
+/********************************************
+Description: Object copy constructor.
+It sets the type to INT 
+integer value to the 'value' parameter passed 
+in.
+********************************************/
 Object::Object (const int & value)
 {
 	type = INT;
@@ -21,6 +32,12 @@ Object::Object (const int & value)
 	MakeName ();
 }
 
+/********************************************
+Description: Double Copy Constructor 
+- Sets the type to real
+- Set realvalue to value parameter passed in
+- sets name value to realval via MakeName()
+********************************************/
 Object::Object (const double & value)
 {
 	type = REAL;
@@ -29,6 +46,10 @@ Object::Object (const double & value)
 	MakeName ();
 }
 
+/********************************************
+Description: String Copy constructor
+
+********************************************/
 Object::Object (const string & value)
 {
 	type = NONE;
@@ -647,9 +668,22 @@ Object::Object (stringstream & ss)
     }
 }
 
+/****************************************
+Description: This function is called in
+the copy constructors and sets the name 
+for the object based on it's type
+
+ex -> 12 is input and set as an INT type.
+The INT case is fulfilled and reads in the
+intval variable, which was set in the copy
+constructor, to the string stream object.
+Lastly the 'name' variable is set to the 
+intvalue that was stored in string stream
+****************************************/
 void Object::MakeName ()
 {
-	stringstream ss;
+        
+        stringstream ss;
 	switch (type)
 	{
 		case INT:
