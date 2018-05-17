@@ -26,8 +26,8 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 {
 	lex = new LexicalAnalyzer (filename);
 	string name = filename;
-	string p3name = name.substr (0, name.length()-3) + ".p3"; 
-	p3file.open (p2name.c_str());
+	string p2name = name.substr (0, name.length()-3) + ".p2"; 
+	p2file.open (p2name.c_str());
 	token = lex->GetToken();
 	Program ();
 }
