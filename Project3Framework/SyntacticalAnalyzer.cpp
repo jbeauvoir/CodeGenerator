@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Assignment: Project 2 - Syntactic Analyzer for Scheme to C++ Translator      *
+* Assignment: Project 3 - Syntactic Analyzer for Scheme to C++ Translator      *
 * Author: Aaron Pineda, Jacques Beauvoir                                       *
 * Date: Spring 2018                                                            *
 * File: SyntacticalAnalyzer.cpp                                                *
@@ -29,6 +29,8 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	string p2name = name.substr (0, name.length()-3) + ".p2"; 
 	p2file.open (p2name.c_str());
 	token = lex->GetToken();
+	ismain = false;
+	codeGenerator = new CodeGen(filename, lex);
 	Program ();
 }
 
@@ -84,6 +86,7 @@ int SyntacticalAnalyzer::Program()
 	}
 	else
 	{
+		errors++;
 		lex->ReportError("Source code did not start with left parentheses. Found: " + lex->GetTokenName(token));
 	}
 	// token should be in follows of Program
@@ -105,8 +108,6 @@ non-terminal function assoc. with rule 2.
 <define> -> LPAREN_T DEFINE_T LPAREN_T IDENT_T <param_list> 
 RPAREN_T <stmt> <stmt_list> RPAREN_T
 ************************************************************/
-
-
 int SyntacticalAnalyzer::define()
 {
     // VARIABLE DECLARATION
@@ -148,18 +149,19 @@ int SyntacticalAnalyzer::define()
 	  token = lex->GetToken();
 	  p2file << "Exiting DEFINE_T check; current token is: "
 		 << lex->GetTokenName (token) << endl;
+		 // For project 3 this should be a giveaway that a funciton is coming up.
 	}
 	else 
 	{
 		lex->ReportError("Expected DEFINE_T not found. Found: " + lex->GetTokenName(token));
 		errors++;
 	}
-	
 	// LPAREN_T 2
     if ( token == LPAREN_T ) {
         token = lex->GetToken();
         p2file << "Exiting LPAREN_T check; current token is: "
                  << lex->GetTokenName (token) << endl;
+				 // function name coming up
 	}
     else {
 		lex->ReportError("Expected LPARENT_T after DEFINE_T not found. Found: " + lex->GetTokenName(token));
@@ -169,18 +171,24 @@ int SyntacticalAnalyzer::define()
 
 	// IDENT_T 
 	if ( token == IDENT_T ) {
-	  token = lex->GetToken();
-	  p2file << "Exiting IDENT_T check; current token is: "
-		 << lex->GetTokenName (token) << endl;
+		if(lex->GetLexeme() == "main"){
+			codeGenerator->WriteCode(0, "int " + lex->GetLexeme() + " ()");
+			codeGenerator->WriteCode(0, "{");
+		}
+		else{
+			codeGenerator->WriteCode(0, "Object " + lex->GetLexeme() + " ()");
+			codeGenerator->WriteCode(0, "{");
+		}
+	  	token = lex->GetToken();
+	  	p2file << "Exiting IDENT_T check; current token is: "
+			<< lex->GetTokenName (token) << endl;
 	}
 	else {
 		lex->ReportError("Expected IDENT_T not found. Found: " + lex->GetTokenName(token));
 		errors++;
 	}
-
 	// <param_list>
 	errors += param_list();
-	
 	// RPAREN_T 
 	if ( token == RPAREN_T ) {
 	  token = lex->GetToken();
@@ -227,17 +235,19 @@ int SyntacticalAnalyzer::any_other_token()
 	p2file << "Entering any_other_token function; current token is: " 
 		<< lex->GetTokenName (token) << endl;
 
-
 	static set<token_type> firsts = {LPAREN_T,IDENT_T,NUMLIT_T,STRLIT_T,CONS_T,IF_T,DISPLAY_T,
 				     NEWLINE_T,LISTOP_T,AND_T,OR_T,NOT_T,DEFINE_T,NUMBERP_T,
 				     SYMBOLP_T,LISTP_T,ZEROP_T,NULLP_T,STRINGP_T,PLUS_T,MINUS_T,
 				     DIV_T,MULT_T,MODULO_T,EQUALTO_T,GT_T,LT_T,GTE_T,LTE_T,
 				     QUOTE_T,COND_T,ELSE_T};
+
 	static set<token_type> follows = {LPAREN_T,IDENT_T,NUMLIT_T,STRLIT_T,CONS_T,IF_T,DISPLAY_T,
 				      NEWLINE_T,LISTOP_T,AND_T,OR_T,NOT_T,DEFINE_T,NUMBERP_T,
 				      SYMBOLP_T,LISTP_T,STRINGP_T,ZEROP_T,NULLP_T,PLUS_T,MINUS_T,
 				      MULT_T,DIV_T,MODULO_T,EQUALTO_T,LT_T,GT_T,LTE_T,GTE_T,QUOTE_T,
 				      COND_T,ELSE_T,RPAREN_T};
+
+
 
 	set<token_type>::iterator itr1 = firsts.find(token);
 	set<token_type>::iterator itr2 = follows.find(token);
@@ -854,7 +864,7 @@ int SyntacticalAnalyzer::param_list()
 	int errors = 0;
 	p2file << "Entering param_list function; current token is: " 
 		<< lex->GetTokenName (token) << endl;
-	static set<token_type> firsts = {IDENT_T,RPAREN_T};
+	static set<token_type> firsts = {IDENT_T};// ,RPAREN_T};
 	static set<token_type> follows = {RPAREN_T};
 	set<token_type>::iterator itr1 = firsts.find(token);
 	set<token_type>::iterator itr2 = follows.find(token);
@@ -909,7 +919,7 @@ int SyntacticalAnalyzer::quoted_lit()
 				     NEWLINE_T,LISTOP_T,AND_T,OR_T,NOT_T,DEFINE_T,NUMBERP_T,
 				     SYMBOLP_T,LISTP_T,STRINGP_T,ZEROP_T,NULLP_T,PLUS_T,MINUS_T,
 				     MULT_T,DIV_T,MODULO_T,EQUALTO_T,LT_T,GT_T,LTE_T,GTE_T,QUOTE_T,
-				     COND_T,ELSE_T,RPAREN_T};
+				     COND_T,ELSE_T}; //,RPAREN_T};
 	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T,RPAREN_T};
 
 	set<token_type>::iterator itr1 = firsts.find(token);
@@ -1138,8 +1148,7 @@ int SyntacticalAnalyzer::stmt()
 	p2file << "Entering stmt function; current token is: " 
 			<< lex->GetTokenName (token) << endl;
   	static set<token_type> firsts = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T};
-	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T,
-				      RPAREN_T};
+	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T}; //,RPAREN_T};
 	set<token_type>::iterator itr1 = firsts.find(token);
     set<token_type>::iterator itr2 = follows.find(token);
 
@@ -1152,11 +1161,19 @@ int SyntacticalAnalyzer::stmt()
 		itr2 = follows.find(token);
 	}
 
-
 	// RULE 7
 	if ( token == NUMLIT_T || token == QUOTE_T || token == STRLIT_T ) {
 	  	p2file << "Using Rule 7" << endl;
-	
+		cout << "CALLING NUMLIT || STRLIT CHECK" << endl;
+		if(token == NUMLIT_T || token == STRLIT_T){//} && lex->GetToken() == RPAREN_T){
+			string temp = lex->GetLexeme();
+			LexicalAnalyzer *anotherTemp = lex;
+			if(anotherTemp->GetToken() == RPAREN_T){
+				codeGenerator->WriteCode(1, "return Object(" + temp + ");");
+				codeGenerator->WriteCode(0, "}");
+				exit(1);
+			}
+		}
 	  	errors += literal();
 	}
 	// RULE 8
