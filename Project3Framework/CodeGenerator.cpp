@@ -6,6 +6,7 @@ using namespace std;
 
 CodeGen::CodeGen (string filename, LexicalAnalyzer * L)
 {
+	cout << "CodeGen object constructed with filename: " << filename << "; and lex Obj: " << L << endl;
 	lex = L;
 	string cppname = filename.substr (0, filename.length()-3) + ".cpp"; 
 	cpp.open (cppname.c_str());
@@ -14,10 +15,11 @@ CodeGen::CodeGen (string filename, LexicalAnalyzer * L)
 	cpp << "#include <iostream>\n";
 	cpp << "#include \"Object.h\"\n";
 	cpp << "using namespace std;\n\n";
+	cpp.flush();
 }
 
 /********************************************************************************/
-/* This function will								*/
+/* This function will close the cpp file.       								*/
 /********************************************************************************/
 CodeGen::~CodeGen ()
 {
@@ -29,7 +31,11 @@ CodeGen::~CodeGen ()
 /********************************************************************************/
 void CodeGen::WriteCode (int tabs, string code)
 {
-	for (int t = 0; t < tabs; t++)
+	cout << "Inside WriteCode with tabs: " << tabs << "; and code: " << code << ";" << endl;
+	for (int t = 0; t < tabs; t++){
 		cpp << '\t';
+	}
 	cpp << code;
+	cpp << endl;
+	cpp.flush();
 }
