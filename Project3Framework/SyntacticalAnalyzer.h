@@ -15,6 +15,7 @@
 #include "LexicalAnalyzer.h"
 #include <set>
 #include <string>
+#include "CodeGenerator.h"
 
 using namespace std;
 
@@ -23,10 +24,14 @@ class SyntacticalAnalyzer
     public:
 	SyntacticalAnalyzer (char * filename);
 	~SyntacticalAnalyzer ();
+	bool isMain();
     private:
 	LexicalAnalyzer * lex;
+	CodeGen * codeGenerator;
 	ofstream p2file;
+	string function;
 	token_type token;
+	bool ismain;
 	int Program();
 	int define();
 	int action();
