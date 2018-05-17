@@ -15,7 +15,10 @@ int main (int argc, char * argv[])
 
 
   SetLimits ();
-  SyntacticalAnalyzer parse (argv[1]);
+  //SyntacticalAnalyzer parse (argv[1]);
+  LexicalAnalyzer * lex;
+  CodeGen cg("test.ss", lex);
+
 
   return 0;
 }

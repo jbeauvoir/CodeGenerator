@@ -40,17 +40,11 @@ Object::Object (const string & value)
 			num++;
 		else if (value[i] == '.')
 			dp++; 
-	if (sgn + num + dp == value.size()) {
-
-	  if (dp == 0) {
-	         *this = Object (atoi (value.c_str()));
-	  }
-
-	  else if (dp == 1) {
-	         *this = Object (atof (value.c_str()));
-	  }
-
-	}
+	if (sgn + num + dp == value.size())
+		if (dp == 0)
+			*this = Object (atoi (value.c_str()));
+		else if (dp == 1)
+			*this = Object (atof (value.c_str()));
 	if (type != NONE)
 		return;
 	int i = 0;

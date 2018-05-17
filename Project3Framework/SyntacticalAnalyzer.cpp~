@@ -156,7 +156,7 @@ int SyntacticalAnalyzer::define()
 	if ( token == DEFINE_T ) 
 	{
 	  token = lex->GetToken();
-	  cg->WriteCode(0, "Object "); // CG
+	  cg->WriteCode(0, "Object ");
 	}
  	else 
 	{
@@ -175,10 +175,10 @@ int SyntacticalAnalyzer::define()
 
 	// IDENT_T 
 	if ( token == IDENT_T ) {
-	  genString = lex->GetLexeme(); // CG Start
-	  cg->WriteCode(0, genString); // 
-	  cg->WriteCode(0, " ("); // CG END
+	  genString = lex->GetLexeme(); // CG
 	  token = lex->GetToken();
+	  cg->WriteCode(0, genString); // CG
+	  cg->WriteCode(0, " (");
 	}
 	else {
 		lex->ReportError("Expected IDENT_T not found. Found: " + lex->GetTokenName(token));
