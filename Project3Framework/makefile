@@ -20,4 +20,4 @@ SyntacticalAnalyzer.o : SyntacticalAnalyzer.cpp SyntacticalAnalyzer.h LexicalAna
 	g++ -g -c -std=c++11 SyntacticalAnalyzer.cpp
 
 clean : 
-	rm -rf *.p P3.out *.gch *.o *.p1 *.lst *.p2 *.dbg
+	rm -rf *.p P3.out *.gch *.o *.p1 *.lst *.p2 *.dbg *~

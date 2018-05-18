@@ -33,6 +33,12 @@ Jacques END
 
 
 
+Working :
+
+- Param_list works 
+- Creating an object function works
+- Returning a value works when 
+
 
 
 
