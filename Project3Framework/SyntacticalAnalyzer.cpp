@@ -203,7 +203,7 @@ int SyntacticalAnalyzer::define()
 	cout << "USING RULE 5 IN DEFINE" << endl;
 	errors += stmt();
 	cout << "USING RULE 5 IN DEFINE CALLING STMT_LIST" << endl;
-	errors += stmt_list(evaluator);
+	errors += stmt_list();
 	cg->WriteCode(0, ";\n");
 	
 	// RPAREN_T
@@ -424,7 +424,7 @@ int SyntacticalAnalyzer::any_other_token()
 * Description: This function will ouptut which rule is used depending on which *
 * token is gathered.														   *
 *******************************************************************************/
-int SyntacticalAnalyzer::action(string evaluator)
+int SyntacticalAnalyzer::action()
 {
   	int errors = 0;
 	p2file << "Entering action function; current token is: " 
@@ -483,15 +483,15 @@ int SyntacticalAnalyzer::action(string evaluator)
 	}
 	else if(token == AND_T){
 		p2file << "Using rule 28" << endl;
-		evaluator = " && ";
+		cg->SetEvaluator(" && ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == OR_T){
 		p2file << "Using rule 29" << endl;
-		evaluator = " || ";
+		cg->SetEvaluator(" || ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == NOT_T){
 		p2file << "Using rule 30" << endl;
@@ -533,72 +533,72 @@ int SyntacticalAnalyzer::action(string evaluator)
 	}
 	else if(token == PLUS_T){
 		p2file << "Using rule 37" << endl;
-		evaluator = " + ";
+		cg->SetEvaluator(" + ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == MINUS_T){
 		p2file << "Using rule 38" << endl;
-		evaluator = " - ";
+		cg->SetEvaluator(" - ");
 		token = lex->GetToken();
 		errors += stmt();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == DIV_T){
 		p2file << "Using rule 39" << endl;
-		evaluator = " / ";
+		cg->SetEvaluator(" / ");
 		token = lex->GetToken();
 		errors += stmt();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	} 
 	else if(token == MULT_T){
 		p2file << "Using rule 40" << endl;
-		evaluator = " * ";
+		cg->SetEvaluator(" * ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == MODULO_T){
 		p2file << "Using rule 41" << endl;
-		evaluator = " % ";
+		cg->SetEvaluator(" % ");
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt();
 	}
 	else if(token == EQUALTO_T){
 		p2file << "Using rule 42" << endl;
-		evaluator = " == ";
+		cg->SetEvaluator(" == ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == GT_T){
 		p2file << "Using rule 43" << endl;
-		evaluator = " > ";
+		cg->SetEvaluator(" > ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == LT_T){
 		p2file << "Using rule 44" << endl;
-		evaluator = " < ";
+		cg->SetEvaluator(" < ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == GTE_T){
 		p2file << "Using rule 45" << endl;
-		evaluator = " >= ";
+		cg->SetEvaluator(" >= ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == LTE_T){
 		p2file << "Using rule 46" << endl;
-		evaluator = " <= ";
+		cg->SetEvaluator(" <= ");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == IDENT_T){
 		p2file << "Using rule 47" << endl;
 		cg->WriteCode(0, lex->GetLexeme() + "(");
 		token = lex->GetToken();
-		errors += stmt_list(evaluator);
+		errors += stmt_list();
 	}
 	else if(token == DISPLAY_T){
 		p2file << "Using rule 48" << endl;
@@ -949,10 +949,6 @@ int SyntacticalAnalyzer::quoted_lit()
 		itr2 = follows.find(token);
 	}
 	
-
-	
-	
-		
 	  p2file << "Using rule 13 function; current token is: " 
 	       << lex->GetTokenName (token) << endl;
 
@@ -975,7 +971,7 @@ int SyntacticalAnalyzer::quoted_lit()
 * Description: This function will ouptut which rule is used depending on which *
 * token is gathered.														   *
 *******************************************************************************/
-int SyntacticalAnalyzer::stmt_list(string evaluator)
+int SyntacticalAnalyzer::stmt_list()
 {
   //        cout << "inside stmt list" << endl;
         // VARIABLE DECLARATIONS 
@@ -1005,9 +1001,9 @@ int SyntacticalAnalyzer::stmt_list(string evaluator)
 	  errors += stmt();
 	  if(token != RPAREN_T)
 	  {
-		  cg->WriteCode(0, evaluator);
+		  cg->WriteCode(0, cg->GetEvaluator());
 	  }
-	  errors += stmt_list(evaluator);
+	  errors += stmt_list();
 	}
 	// RULE 6
 	else if ( token == RPAREN_T ){
@@ -1214,7 +1210,7 @@ int SyntacticalAnalyzer::stmt()
 		// cg->WriteCode(1, genString); 
 	  	token = lex->GetToken();
 		// Non-terminal check
-	  	errors += action(evaluator);
+	  	errors += action();
 	  	if ( token == RPAREN_T ) {
 	    	lex->GetTokenName (token);
 	  	}
