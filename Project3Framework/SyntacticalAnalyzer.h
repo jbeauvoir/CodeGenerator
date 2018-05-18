@@ -33,7 +33,7 @@ class SyntacticalAnalyzer
 	token_type token;
 	int Program();
 	int define();
-	int action(string evaluator);
+	int action();
 	int any_other_token();
 	int else_part();
 	int literal();
@@ -41,7 +41,7 @@ class SyntacticalAnalyzer
 	int more_tokens();
 	int param_list();
 	int quoted_lit();
-	int stmt_list(string evaluator);
+	int stmt_list();
 	int stmt_pair_body();
 	int stmt_pair();
 	int stmt();
