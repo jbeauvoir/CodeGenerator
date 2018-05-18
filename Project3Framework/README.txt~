@@ -27,4 +27,6 @@ f - after statement outputs an object there's a space then ';'
        example: Object("a") ; outputs instead of Object("a");
   - Skipped production rule 20 -> not sure if anything needs to 
     be done inside of it
+  - Production rule 18 not yet tested
+
 Jacques END

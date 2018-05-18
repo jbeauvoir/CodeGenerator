@@ -1099,6 +1099,8 @@ int SyntacticalAnalyzer::quoted_lit()
 	  p2file << "Using rule 13 function; current token is: " 
 	       << lex->GetTokenName (token) << endl;
 
+	  token = lex->GetToken();
+
           // Non-terminal check
 	  errors += any_other_token();
 	
@@ -1139,18 +1141,23 @@ int SyntacticalAnalyzer::stmt_list()
 		itr2 = follows.find(token);
 	}
 	
-	//	cout << "before rule 5 in stmtnt list" << endl;
+
 	// RULE 5
 	if( token == IDENT_T || token == LPAREN_T || token == NUMLIT_T || 
-	    token == STRLIT_T || token == QUOTE_T ) {
+	    token == STRLIT_T || token == QUOTE_T ) 
+	{
+
 	  p2file << "Using Rule 5" << endl;
  
 	  errors += stmt();
+
 	  if(token != RPAREN_T)
 	  {
-		  cg->WriteCode(0, evaluator);
+	    cg->WriteCode(0, cg->GetEvaluator());
 	  }
+
 	  errors += stmt_list();
+
 	}
 	// RULE 6
 	else if ( token == RPAREN_T ){

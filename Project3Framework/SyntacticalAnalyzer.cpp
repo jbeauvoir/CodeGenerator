@@ -91,6 +91,9 @@ int SyntacticalAnalyzer::Program()
 	
 	  p2file << "Using Rule 1" << endl;
 	  errors += define();
+	  
+	  token = lex->GetToken();
+
 	  errors += more_defines();
 	  
 	}
@@ -211,9 +214,12 @@ int SyntacticalAnalyzer::define()
 	
 	// RPAREN_T 2
 	if ( token == RPAREN_T ) {
+	  
 	  token = lex->GetToken();
-	  cg->WriteCode(1, "\nreturn __RetVal;\n"); // CG
+	  
+	  cg->WriteCode(1, "return __RetVal;\n"); // CG
 	  cg->WriteCode(0, "}\n\n"); // CG 
+	
 	}
 	else {
 		lex->ReportError("Expected RPAREN_T not found. Found: " + lex->GetTokenName(token));
@@ -901,7 +907,10 @@ int SyntacticalAnalyzer::more_defines()
 
 		// Non-terminal check
 	  	errors += define();
-	  	errors += more_defines();		
+		
+		token = lex->GetToken();
+
+		errors += more_defines();		
 		
 	}
 	// RULE 4
@@ -1098,6 +1107,8 @@ int SyntacticalAnalyzer::quoted_lit()
 		
 	  p2file << "Using rule 13 function; current token is: " 
 	       << lex->GetTokenName (token) << endl;
+
+	  token = lex->GetToken();
 
           // Non-terminal check
 	  errors += any_other_token();
