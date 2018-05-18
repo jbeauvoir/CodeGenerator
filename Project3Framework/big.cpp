@@ -11,7 +11,7 @@ Object listop_ex1 (Object v1 ,Object v2)
 	return __RetVal;
 }
 
-Object listop_ex2 ( ,Object x1 ,Object x2)
+Object listop_ex2 (Object x1 ,Object x2)
 {
 	Object __RetVal;
 	__RetVal = Object("")Object(2)Object(3);

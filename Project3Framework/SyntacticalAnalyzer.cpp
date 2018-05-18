@@ -66,12 +66,13 @@ SyntacticalAnalyzer::~SyntacticalAnalyzer ()
 * Description: This function will start parsing by checking if the input source*
 * code is syntactically correct by checking if the scheme file starts with a   *
 * left parentheses. If the first token is not a left parentheses, a diagnostic *
-* message will be given.      												   *
+* message will be given.
 *******************************************************************************/
 int SyntacticalAnalyzer::Program()
 {
 	p2file << "Entering Program function; current token is: "
-					<< lex->GetTokenName (token) << endl;
+	       << lex->GetTokenName (token) << endl;
+	
 	int errors = 0;
 	static set<token_type> firsts = {LPAREN_T};
 	static set<token_type> follows = {};
@@ -83,6 +84,7 @@ int SyntacticalAnalyzer::Program()
 		lex->ReportError("Unexpected " + lex->GetTokenName(token) + "found in Program function.");
 		errors++;
 		token = lex->GetToken();
+		
 		itr_firsts = firsts.find(token);
 		itr_follows = follows.find(token);
 	}
@@ -101,13 +103,17 @@ int SyntacticalAnalyzer::Program()
 	{
 		lex->ReportError("Source code did not start with left parentheses. Found: " + lex->GetTokenName(token));
 	}
-	// token should be in follows of Program
+
 	if (token != EOF_T) {
+
 	    errors++;
 	    lex->ReportError ("Missing end of file at end of program");
+
 	}
+
 	p2file << "Exiting Program function; current token is: "
-					<< lex->GetTokenName (token) << endl;
+	       << lex->GetTokenName (token) << endl;
+	
 	return errors;
 }
 
@@ -123,7 +129,7 @@ RPAREN_T <stmt> <stmt_list> RPAREN_T
 
 int SyntacticalAnalyzer::define()
 {
-    // VARIABLE DECLARATION
+        // VARIABLE DECLARATION START  
 	int errors = 0;	
 	static set<token_type> firsts = {LPAREN_T};
 	static set<token_type> follows = {LPAREN_T,EOF_T};
@@ -131,6 +137,11 @@ int SyntacticalAnalyzer::define()
 	set<token_type>::iterator itr1 = firsts.find(token);
 	set<token_type>::iterator itr2 = follows.find(token);
 	
+	cg->setIsFirstParamList(true);
+	// VARIABLE DECALRATION END
+	
+	
+
 	p2file << "Entering define function; current token is: " 
 	       << lex->GetTokenName (token) << endl;
 
