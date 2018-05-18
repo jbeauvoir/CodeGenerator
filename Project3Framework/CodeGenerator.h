@@ -13,9 +13,12 @@ class CodeGen
 	CodeGen (string filename, LexicalAnalyzer * L);
 	~CodeGen ();
 	void WriteCode (int tabs, string code);
+	string GetEvaluator();
+	void SetEvaluator(string evaluator);
     private:
 	LexicalAnalyzer * lex;
 	ofstream cpp;
+	string eval;
 };
 	
 #endif
