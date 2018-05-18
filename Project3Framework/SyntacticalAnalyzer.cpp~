@@ -452,12 +452,19 @@ int SyntacticalAnalyzer::action()
 	if(token == IF_T){
 		p2file << "Using rule 24" << endl;
 
-		cg->WriteCode(1, )// CG START
+		cg->WriteCode(1, "if ("); // CG START
 		
 		token = lex->GetToken();
 		errors += stmt();
+		
+		cg->WriteCode(1, ")\n{\n"); // CG
+		
 		errors += stmt();
+		
+		cg->WriteCode(0, "\n}\n"); // CG		
+
 		errors += else_part();
+		
 	}
 	else if(token == COND_T){
 		p2file << "Using rule 25" << endl;

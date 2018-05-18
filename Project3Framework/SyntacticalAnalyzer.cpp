@@ -452,13 +452,17 @@ int SyntacticalAnalyzer::action()
 	if(token == IF_T){
 		p2file << "Using rule 24" << endl;
 
-		//cg->WriteCode(1, "if ("); // CG START
+		cg->WriteCode(1, "if ("); // CG START
 		
 		token = lex->GetToken();
 		errors += stmt();
-		//cg->WriteCode(1, ")\n{\n"); // CG
+		
+		cg->WriteCode(1, ")\n{\n"); // CG
+		
 		errors += stmt();
-		//cg->WriteCode(0, );
+		
+		cg->WriteCode(0, "\n}\n"); // CG		
+
 		errors += else_part();
 		
 	}
@@ -643,7 +647,7 @@ int SyntacticalAnalyzer::else_part()
 
 	  cg->WriteCode(1, "else\n{\n"); // CG START
 	  errors += stmt(); //
-	  cg->WriteCode(0, "}\n"); // CG END 
+	  cg->WriteCode(1, "}\n"); // CG END 
 
 	}
 
@@ -897,9 +901,10 @@ int SyntacticalAnalyzer::param_list()
 		// When this if-statement is fulfilled 
 		// it means that there is more than one
 		// <param_list> 
-		if( !cg->getIsFirstParamList() )  // CG Start
+		if( !cg->getIsFirstParamList() ) {  // CG Start
 		  cg->WriteCode(0, " ,"); // 
-		
+		}
+
 		cg->WriteCode(0, "Object "); // 
 		genString = lex->GetLexeme(); // 
 		cg->WriteCode(0, genString); //
@@ -925,14 +930,14 @@ int SyntacticalAnalyzer::param_list()
 }
 
 
-/*******************************************************************************
+/******************************************************************************\
 * Function: quoted_lit                                                         *
 *                                                                              *
 * Parameters: None                                                             *
 * Return value: None                                                           *
 * Description: This function will ouptut which rule is used depending on which *
-* token is gathered.														   *
-*******************************************************************************/
+* token is gathered.							       *
+\******************************************************************************/
 int SyntacticalAnalyzer::quoted_lit()
 {
            // Variable Declrations 
@@ -1037,7 +1042,7 @@ int SyntacticalAnalyzer::stmt_list()
 * Parameters: None                                                             *
 * Return value: None                                                           *
 * Description: This function will ouptut which rule is used depending on which *
-* token is gathered.														   *
+* token is gathered.	   				     		   *
 *******************************************************************************/
 int SyntacticalAnalyzer::stmt_pair_body()
 {
