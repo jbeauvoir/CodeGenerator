@@ -23,7 +23,7 @@ CodeGen::CodeGen (string filename, LexicalAnalyzer * L)
 }
 
 /********************************************************************************/
-/* This function will								*/
+/* This function will close the cpp file.       								*/
 /********************************************************************************/
 CodeGen::~CodeGen ()
 {
@@ -36,17 +36,35 @@ CodeGen::~CodeGen ()
 void CodeGen::WriteCode (int tabs, string code)
 {
 
-	for (int t = 0; t < tabs; t++)
+	for (int t = 0; t < tabs; t++){
 		cpp << '\t';
+	}
 	cpp << code;
 	cpp.flush();
 }
 
 void CodeGen::setIsFirstParamList(bool value)
 {
+
   firstParamList = value;
+
 }
+
 bool CodeGen::getIsFirstParamList()
 {
+
   return firstParamList;
+
 }
+
+void CodeGen::SetEvaluator(string evaluator)
+{
+  eval = evaluator;
+}
+
+string CodeGen::GetEvaluator()
+{
+  return eval;
+}
+
+

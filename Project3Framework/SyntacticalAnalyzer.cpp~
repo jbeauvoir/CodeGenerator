@@ -31,6 +31,7 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	lex = new LexicalAnalyzer (filename);
 	
 
+
 	string name = filename;
 	string p2name = name.substr (0, name.length()-3) + ".p2"; 
 	p2file.open (p2name.c_str());
@@ -112,7 +113,6 @@ File: Define.cpp
 Author: Jacques Beauvoir & Aaron Pineda
 Description: This file has the define 
 non-terminal function assoc. with rule 2.
-
 <define> -> LPAREN_T DEFINE_T LPAREN_T IDENT_T <param_list> 
 RPAREN_T <stmt> <stmt_list> RPAREN_T
 ************************************************************/
@@ -190,14 +190,15 @@ int SyntacticalAnalyzer::define()
 	// RPAREN_T 1 
 	if ( token == RPAREN_T ) {
 	  token = lex->GetToken();
-	  cg->WriteCode(0, ")\n"); // CG
-	  cg->WriteCode(0, "{\n"); // CG
-	  cg->WriteCode(1, "Object __RetVal;\n");
+	  cg->WriteCode(0, ")\n"); // CG START
+	  cg->WriteCode(0, "{\n"); // 
+	  cg->WriteCode(1, "Object __RetVal;\n");// CG END
 	}
 	else {
 		lex->ReportError("Expected RPAREN_T not found. Found: " + lex->GetTokenName(token));
 		errors++;
 	}
+
 
 	cg->WriteCode(1, "__RetVal = "); // CG
 
@@ -207,10 +208,11 @@ int SyntacticalAnalyzer::define()
 
 	cg->WriteCode(0, ";\n"); // CG
 
+	
 	// RPAREN_T 2
 	if ( token == RPAREN_T ) {
 	  token = lex->GetToken();
-	  cg->WriteCode(1, "return __RetVal;\n"); // CG
+	  cg->WriteCode(1, "\nreturn __RetVal;\n"); // CG
 	  cg->WriteCode(0, "}\n\n"); // CG 
 	}
 	else {
@@ -447,8 +449,6 @@ int SyntacticalAnalyzer::action()
 		itr1 = firsts.find(token);
 		itr2 = follows.find(token);
 	}
-
-
 	if(token == IF_T){
 		p2file << "Using rule 24" << endl;
 
@@ -467,140 +467,261 @@ int SyntacticalAnalyzer::action()
 		
 	}
 	else if(token == COND_T){
+
 		p2file << "Using rule 25" << endl;
+		
 		token = lex->GetToken();
+
+		cg->WriteCode(1, "if ("); // CG
+
 		lex->GetTokenName(token);
+
+		// BEGIN NESTED IF-ELSE
 		if(token == LPAREN_T){
 			p2file << "Using rule 25" << endl;
 			token = lex->GetToken();
 			errors += stmt_pair_body();
 		}
+		else{
+			errors++;
+		}
+		// END NESTED IF_ELSE
+
+		cg->WriteCode(0, ")\n{"); // CG
+
 	}
 	else if(token == LISTOP_T){
+
 		p2file << "Using rule 26" << endl;
+
 		token = lex->GetToken();
 		errors += stmt();
+
 	}
 	else if(token == CONS_T){
+
 		p2file << "Using rule 27" << endl;
+
+		cg->WriteCode(0, genString + "cons( "); // CG
+
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt();
+
 	}
 	else if(token == AND_T){
 		p2file << "Using rule 28" << endl;
+		cg->SetEvaluator(" && "); // CG
 		token = lex->GetToken();
 		errors += stmt_list();
 	}
 	else if(token == OR_T){
+
 		p2file << "Using rule 29" << endl;
+
+		cg->SetEvaluator(" || "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == NOT_T){
+
 		p2file << "Using rule 30" << endl;
 		token = lex->GetToken();
+
 		errors += stmt();
+
 	}
 	else if(token == NUMBERP_T){
+
 		p2file << "Using rule 31" << endl;
+
+		cg->WriteCode(0, "numberp("); // CG
+
 		token = lex->GetToken();
 		errors += stmt();
+
 	}
 	else if(token == SYMBOLP_T){
+
 		p2file << "Using rule 32" << endl;
+
 		token = lex->GetToken();
 		errors += stmt();
+
 	} 
 	else if(token == LISTP_T){
+
 		p2file << "Using rule 33" << endl;
+
+		cg->WriteCode(0, "listp("); // CG
+
 		token = lex->GetToken();
+
 		errors += stmt();
+
 	}
 	else if(token == ZEROP_T){
+
 		p2file << "Using rule 34" << endl;
+
 		token = lex->GetToken();
+
 		errors += stmt();
+
 	}
 	else if(token == NULLP_T){
+
 		p2file << "Using rule 35" << endl;
+
+		cg->WriteCode(0, "nullp(");
+
 		token = lex->GetToken();
+
 		errors += stmt();
+
 	}
 	else if(token == STRINGP_T){
+
 		p2file << "Using rule 36" << endl;
+
 		token = lex->GetToken();
+
 		errors += stmt();
+
 	}
 	else if(token == PLUS_T){
+
 		p2file << "Using rule 37" << endl;
+
+		cg->SetEvaluator(" + "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == MINUS_T){
+
 		p2file << "Using rule 38" << endl;
+
+		cg->SetEvaluator(" - "); // CG
+
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt_list();
+
 	}
 	else if(token == DIV_T){
+
 		p2file << "Using rule 39" << endl;
+
+		cg->SetEvaluator(" / "); // CG
+
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt_list();
+
 	} 
 	else if(token == MULT_T){
+
 		p2file << "Using rule 40" << endl;
+
+		cg->SetEvaluator(" * "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == MODULO_T){
+
 		p2file << "Using rule 41" << endl;
+
+		cg->SetEvaluator(" % "); // CG
+
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt();
+
 	}
 	else if(token == EQUALTO_T){
+
 		p2file << "Using rule 42" << endl;
+
+		cg->SetEvaluator(" == "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == GT_T){
+
 		p2file << "Using rule 43" << endl;
+
+		cg->SetEvaluator(" > "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == LT_T){
+
 		p2file << "Using rule 44" << endl;
+
+		cg->SetEvaluator(" < "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == GTE_T){
+
 		p2file << "Using rule 45" << endl;
+
+		cg->SetEvaluator(" >= "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == LTE_T){
+
 		p2file << "Using rule 46" << endl;
+
+		cg->SetEvaluator(" <= "); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == IDENT_T){
+
 		p2file << "Using rule 47" << endl;
+
+		cg->WriteCode(0, lex->GetLexeme() + "("); // CG
+
 		token = lex->GetToken();
 		errors += stmt_list();
+
 	}
 	else if(token == DISPLAY_T){
+
 		p2file << "Using rule 48" << endl;
+
 		token = lex->GetToken();
 		errors += stmt();
+
 	} 
 	else if(token == NEWLINE_T){
 		p2file << "Using rule 49" << endl;
+
+		cg->WriteCode(0, "cout << endl;\n"); // CG
+
 		token = lex->GetToken();
 		
 	}
 	else{
+
 		errors++;
 		lex->ReportError("Expected firsts of action not found. Found: " + lex->GetTokenName(token));
 
@@ -608,6 +729,7 @@ int SyntacticalAnalyzer::action()
 
 	p2file << "Exiting action function; current token is: " 
 	       << lex->GetTokenName (token) << endl;
+
 	return errors;
 }
 
@@ -647,7 +769,7 @@ int SyntacticalAnalyzer::else_part()
 
 	  cg->WriteCode(1, "else\n{\n"); // CG START
 	  errors += stmt(); //
-	  cg->WriteCode(0, "}\n"); // CG END 
+	  cg->WriteCode(1, "}\n"); // CG END 
 
 	}
 
@@ -683,8 +805,7 @@ int SyntacticalAnalyzer::literal()
 	p2file << "Entering literal function; current token is: " 
 		<< lex->GetTokenName (token) << endl;
 	static set<token_type> firsts = {NUMLIT_T,STRLIT_T,QUOTE_T};
-	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T,
-				      RPAREN_T};
+	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T, RPAREN_T};
 	set<token_type>::iterator itr1 = firsts.find(token);
 	set<token_type>::iterator itr2 = follows.find(token);
 
@@ -699,14 +820,15 @@ int SyntacticalAnalyzer::literal()
 
 	// RULE 10 
 	if ( token == NUMLIT_T ) {
-		p2file << "Using Rule 10" << endl;
-		
-		cg->WriteCode(0, "Object(\""); // CG Start
 
-		genString = lex->GetLexeme(); // 
+		p2file << "Using Rule 10" << endl;
+
+		cg->WriteCode(0, "Object("); // CG Start
+
+ 		genString = lex->GetLexeme(); // 
 		cg->WriteCode(0, genString); // 
-		
-		cg->WriteCode(0, "\")"); // CG End 
+
+		cg->WriteCode(0, ")"); // CG END
 
 	  	token = lex->GetToken();		
 
@@ -714,21 +836,24 @@ int SyntacticalAnalyzer::literal()
 	// RULE 11
 	else if ( token == STRLIT_T ) {
 		p2file << "Using Rule 11" << endl;
+		cout << "STRLIT FOUND IN LIT WITH LEXEME: " << lex->GetLexeme() << endl; 
+		cg->WriteCode(0, "Object(" + lex->GetLexeme() + ")");
 	  	token = lex->GetToken();
 
 	}
 	// RULE 12 
 	else if ( token == QUOTE_T ) {
+
 	  	p2file << "Using Rule 12" << endl; 
 
 		cg->WriteCode(0, "Object(\"");// CG
 
 	  	token = lex->GetToken();
 	  	errors += quoted_lit();
-		
+
 		cg->WriteCode(0, "\")");
+
 	} 
-	// no valid first
 	else {
 		errors++;
 		lex->ReportError("Firsts of literal not found. Found: " + lex->GetTokenName(token));
@@ -808,11 +933,13 @@ int SyntacticalAnalyzer::more_defines()
 *******************************************************************************/
 int SyntacticalAnalyzer::more_tokens()
 {
-          // Variable Declaration
+        // Variable Declarations START
 	int errors = 0;
-	p2file << "Entering more_tokens function; current token is: " 
+	
+        p2file << "Entering more_tokens function; current token is: " 
 		<< lex->GetTokenName (token) << endl;
-	static set<token_type> firsts = {LPAREN_T,IDENT_T,NUMLIT_T,STRLIT_T,CONS_T,IF_T,DISPLAY_T,
+	
+        static set<token_type> firsts = {LPAREN_T,IDENT_T,NUMLIT_T,STRLIT_T,CONS_T,IF_T,DISPLAY_T,
                                      NEWLINE_T,LISTOP_T,AND_T,OR_T,NOT_T,DEFINE_T,NUMBERP_T,
                                      SYMBOLP_T,LISTP_T,STRINGP_T,ZEROP_T,NULLP_T,PLUS_T,MINUS_T,
                                      MULT_T,DIV_T,MODULO_T,EQUALTO_T,LT_T,GT_T,LTE_T,GTE_T,QUOTE_T,
@@ -828,6 +955,8 @@ int SyntacticalAnalyzer::more_tokens()
 	set<token_type>::iterator itr1 = firsts.find(token);
 	set<token_type>::iterator itr2 = follows.find(token);
 	set<token_type>::iterator itr3 = AOT.find(token);
+        // Variable Declarations END
+
 
 	while(itr1 == firsts.end() && itr2 == follows.end())
 	{
@@ -901,9 +1030,10 @@ int SyntacticalAnalyzer::param_list()
 		// When this if-statement is fulfilled 
 		// it means that there is more than one
 		// <param_list> 
-		if( !cg->getIsFirstParamList() )  // CG Start
+		if( !cg->getIsFirstParamList() ) {  // CG Start
 		  cg->WriteCode(0, " ,"); // 
-		
+		}
+
 		cg->WriteCode(0, "Object "); // 
 		genString = lex->GetLexeme(); // 
 		cg->WriteCode(0, genString); //
@@ -929,14 +1059,14 @@ int SyntacticalAnalyzer::param_list()
 }
 
 
-/*******************************************************************************
+/******************************************************************************\
 * Function: quoted_lit                                                         *
 *                                                                              *
 * Parameters: None                                                             *
 * Return value: None                                                           *
 * Description: This function will ouptut which rule is used depending on which *
-* token is gathered.														   *
-*******************************************************************************/
+* token is gathered.							       *
+\******************************************************************************/
 int SyntacticalAnalyzer::quoted_lit()
 {
            // Variable Declrations 
@@ -1016,6 +1146,10 @@ int SyntacticalAnalyzer::stmt_list()
 	  p2file << "Using Rule 5" << endl;
  
 	  errors += stmt();
+	  if(token != RPAREN_T)
+	  {
+		  cg->WriteCode(0, evaluator);
+	  }
 	  errors += stmt_list();
 	}
 	// RULE 6
@@ -1041,7 +1175,7 @@ int SyntacticalAnalyzer::stmt_list()
 * Parameters: None                                                             *
 * Return value: None                                                           *
 * Description: This function will ouptut which rule is used depending on which *
-* token is gathered.														   *
+* token is gathered.	   				     		   *
 *******************************************************************************/
 int SyntacticalAnalyzer::stmt_pair_body()
 {
@@ -1171,13 +1305,12 @@ int SyntacticalAnalyzer::stmt_pair()
 *******************************************************************************/
 int SyntacticalAnalyzer::stmt()
 {
-          // Variable Declaration 
-    int errors = 0;
+        // Variable Declaration START
+        int errors = 0;
 	p2file << "Entering Stmt function; current token is: " 
 			<< lex->GetTokenName (token) << endl;
   	static set<token_type> firsts = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T};
-	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T,
-				      RPAREN_T};
+	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T, RPAREN_T};
 	set<token_type>::iterator itr1 = firsts.find(token);
 	set<token_type>::iterator itr2 = follows.find(token);
 
@@ -1188,7 +1321,15 @@ int SyntacticalAnalyzer::stmt()
 		token = lex->GetToken();
 		itr1 = firsts.find(token);
 		itr2 = follows.find(token);
-	}	
+	}
+	// Variable Declaration END
+
+	// Not too sure if this should be inside the token checks but I figured that all of 
+	// the stmts need to be set to '__RetVal'. I'm leaning towards not having this because
+	// RetVal isn't necessarilly made if the user forgets to put in a <stmt>.
+	//cg->WriteCode(0, "  __RetVal =  ");
+	
+
 
 	// RULE 7
 	if ( token == NUMLIT_T || token == QUOTE_T || token == STRLIT_T ) {
@@ -1220,23 +1361,17 @@ int SyntacticalAnalyzer::stmt()
 	}
 	// RULE 9
 	else if ( token == LPAREN_T ) {
-	  	p2file << "Using Rule 9" << endl;
-	
-		
-		// Code Gen Code 
-		//genString = "__RetVal = "; // CG
-		//cg->WriteCode(1, genString); // CG
-		// I commented this out because <stmt> can be
-		// called in cases like 'cons' so there would
-		// be excess '__RetVal's'
-		
-	  	token = lex->GetToken();
-		// Non-terminal check
+	  	
+      	        p2file << "USING RULE 9 IN STMT" << endl;
+
+		token = lex->GetToken();
+
 	  	errors += action();
 
 	  	if ( token == RPAREN_T ) {
-	    	lex->GetTokenName (token);
-	    
+
+		  lex->GetTokenName (token);
+		
 	  	}
 	  	else {
 		  errors++; 
@@ -1244,12 +1379,12 @@ int SyntacticalAnalyzer::stmt()
 	  	}
 	}
 	else {
-	  
+
 	  genString = "Object(\" \")"; // CG
 	  cg->WriteCode(0, genString); // CG 
 
 	  errors++;
-	  lex->ReportError("Firsts of stmt3 not found. Found: " + lex->GetTokenName(token));
+	  lex->ReportError("Firsts of stmt not found. Found: " + lex->GetTokenName(token));
 
 	}
 

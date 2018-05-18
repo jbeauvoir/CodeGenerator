@@ -13,9 +13,14 @@ class CodeGen
 	CodeGen (string filename, LexicalAnalyzer * L);
 	~CodeGen ();
 	void WriteCode (int tabs, string code);
+	void setIsFirstParamList(bool value);
+	bool getIsFirstParamList();
+
+
     private:
 	LexicalAnalyzer * lex;
 	ofstream cpp;
+	bool firstParamList;
 };
 	
 #endif
