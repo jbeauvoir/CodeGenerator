@@ -25,6 +25,7 @@ class SyntacticalAnalyzer
 	SyntacticalAnalyzer (char * filename);
 	~SyntacticalAnalyzer ();
     private:
+	bool firstParamList;
 	string genString;
 	LexicalAnalyzer * lex;
 	CodeGen * cg;

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * Assignment: Project 2 - Syntactic Analyzer for Scheme to C++ Translator      *
-* Author: Aaron Pineda, Jacques Beauvoir                                       *
+* Author: Aaron Pineda ,Jacques Beauvoir                                       *
 * Date: Spring 2018                                                            *
 * File: SyntacticalAnalyzer.cpp                                                *
 *                                                                              *
@@ -30,12 +30,11 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 {
 	lex = new LexicalAnalyzer (filename);
 	
+
 	string name = filename;
 	string p2name = name.substr (0, name.length()-3) + ".p2"; 
 	p2file.open (p2name.c_str());
-	token = lex->GetToken();
-	
-	
+	token = lex->GetToken();	
 
 	cg = new CodeGen (filename, lex);
 
@@ -102,7 +101,7 @@ int SyntacticalAnalyzer::Program()
 	if (token != EOF_T) {
 	    errors++;
 	    lex->ReportError ("Missing end of file at end of program");
-	  }
+	}
 	p2file << "Exiting Program function; current token is: "
 					<< lex->GetTokenName (token) << endl;
 	return errors;
@@ -156,7 +155,7 @@ int SyntacticalAnalyzer::define()
 	if ( token == DEFINE_T ) 
 	{
 	  token = lex->GetToken();
-	  cg->WriteCode(0, "Object ");
+	  cg->WriteCode(0, "Object "); // CG
 	}
  	else 
 	{
@@ -175,10 +174,10 @@ int SyntacticalAnalyzer::define()
 
 	// IDENT_T 
 	if ( token == IDENT_T ) {
-	  genString = lex->GetLexeme(); // CG
+	  genString = lex->GetLexeme(); // CG Start
+	  cg->WriteCode(0, genString); // 
+	  cg->WriteCode(0, " ("); // CG END
 	  token = lex->GetToken();
-	  cg->WriteCode(0, genString); // CG
-	  cg->WriteCode(0, " (");
 	}
 	else {
 		lex->ReportError("Expected IDENT_T not found. Found: " + lex->GetTokenName(token));
@@ -188,7 +187,7 @@ int SyntacticalAnalyzer::define()
 	// <param_list>
 	errors += param_list();
 	
-	// RPAREN_T 
+	// RPAREN_T 1 
 	if ( token == RPAREN_T ) {
 	  token = lex->GetToken();
 	  cg->WriteCode(0, ")\n"); // CG
@@ -199,14 +198,19 @@ int SyntacticalAnalyzer::define()
 		lex->ReportError("Expected RPAREN_T not found. Found: " + lex->GetTokenName(token));
 		errors++;
 	}
+
+	cg->WriteCode(1, "__RetVal = "); // CG
+
 	// nonterminals
 	errors += stmt();
-	errors += stmt_list();
-	
-	// RPAREN_T
+ 	errors += stmt_list();
+
+	cg->WriteCode(0, ";\n"); // CG
+
+	// RPAREN_T 2
 	if ( token == RPAREN_T ) {
 	  token = lex->GetToken();
-	  cg->WriteCode(1, "\nreturn __RetVal;\n"); // CG
+	  cg->WriteCode(1, "return __RetVal;\n"); // CG
 	  cg->WriteCode(0, "}\n\n"); // CG 
 	}
 	else {
@@ -690,7 +694,7 @@ int SyntacticalAnalyzer::literal()
 		genString = lex->GetLexeme(); // 
 		cg->WriteCode(0, genString); // 
 		
-		cg->WriteCode(0, "\")");
+		cg->WriteCode(0, "\")"); // CG End 
 
 	  	token = lex->GetToken();		
 
@@ -704,8 +708,13 @@ int SyntacticalAnalyzer::literal()
 	// RULE 12 
 	else if ( token == QUOTE_T ) {
 	  	p2file << "Using Rule 12" << endl; 
+
+		cg->WriteCode(0, "Object(\"");// CG
+
 	  	token = lex->GetToken();
 	  	errors += quoted_lit();
+		
+		cg->WriteCode(0, "\")");
 	} 
 	// no valid first
 	else {
@@ -874,8 +883,20 @@ int SyntacticalAnalyzer::param_list()
 
 	// RULE 16
 	if ( token == IDENT_T ) {
-	  	p2file << "Using Rule 16" << endl;
+
+	        p2file << "Using Rule 16" << endl;
+		
+		
+		if( !cg->getIsFirstParamList() )  // CG Start
+		  cg->WriteCode(0, " ,"); // 
+		
+		cg->WriteCode(0, "Object "); // 
+		genString = lex->GetLexeme(); // 
+		cg->WriteCode(0, genString); //
+		setIsFirstParamList(false);
+
 	  	token = lex->GetToken();
+
 	  	// Non-terminal check 
 	  	errors += param_list();
 	}
@@ -1138,13 +1159,13 @@ int SyntacticalAnalyzer::stmt()
 {
           // Variable Declaration 
     int errors = 0;
-	p2file << "Entering stmt function; current token is: " 
+	p2file << "Entering Stmt function; current token is: " 
 			<< lex->GetTokenName (token) << endl;
   	static set<token_type> firsts = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T};
 	static set<token_type> follows = {IDENT_T,LPAREN_T,NUMLIT_T,STRLIT_T,QUOTE_T,
 				      RPAREN_T};
 	set<token_type>::iterator itr1 = firsts.find(token);
-    set<token_type>::iterator itr2 = follows.find(token);
+	set<token_type>::iterator itr2 = follows.find(token);
 
 	while(itr1 == firsts.end() && itr2 == follows.end())
 	{
@@ -1153,13 +1174,7 @@ int SyntacticalAnalyzer::stmt()
 		token = lex->GetToken();
 		itr1 = firsts.find(token);
 		itr2 = follows.find(token);
-	}
-
-	// Not too sure if this should be inside the token checks but I figured that all of 
-	// the stmts need to be set to '__RetVal'. I'm leaning towards not having this because
-	// RetVal isn't necessarilly made if the user forgets to put in a <stmt>.
-	//cg->WriteCode(0, "  __RetVal =  ");
-	
+	}	
 
 	// RULE 7
 	if ( token == NUMLIT_T || token == QUOTE_T || token == STRLIT_T ) {
@@ -1173,15 +1188,18 @@ int SyntacticalAnalyzer::stmt()
 
 	  	p2file << "Using Rule 8" << endl;
 
-		genString = "__RetVal = "; // CG Start
-		cg->WriteCode(1, genString); //
-	
+		//genString = "__RetVal = "; // CG Start
+		//cg->WriteCode(1, genString); //
+		// I commented this out because <stmt> can be
+		// called in cases like 'cons' so there would
+		// be excess '__RetVal's'
+
 		cg->WriteCode(0, "Object(\""); // 
 
 		genString = lex->GetLexeme(); //
 		cg->WriteCode(0, genString); // 
 		
-		cg->WriteCode(0, "\") "); // CG End
+		cg->WriteCode(0, "\")"); // CG End
 		
 		token = lex->GetToken();
 
@@ -1190,12 +1208,15 @@ int SyntacticalAnalyzer::stmt()
 	else if ( token == LPAREN_T ) {
 	  	p2file << "Using Rule 9" << endl;
 	
+		
 		// Code Gen Code 
-		genString = "__RetVal = ";
-		cg->WriteCode(1, "__RetVal =  "); 
+		//genString = "__RetVal = "; // CG
+		//cg->WriteCode(1, genString); // CG
+		// I commented this out because <stmt> can be
+		// called in cases like 'cons' so there would
+		// be excess '__RetVal's'
 		
 	  	token = lex->GetToken();
-		
 		// Non-terminal check
 	  	errors += action();
 
@@ -1210,7 +1231,7 @@ int SyntacticalAnalyzer::stmt()
 	}
 	else {
 	  
-	  genString = "Object(\" \");"; // CG
+	  genString = "Object(\" \")"; // CG
 	  cg->WriteCode(0, genString); // CG 
 
 	  errors++;

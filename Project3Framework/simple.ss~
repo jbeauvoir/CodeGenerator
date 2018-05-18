@@ -1,1 +1,1 @@
-(define (listop_ex1) 'a)
+(define (listop_ex1 b) a)

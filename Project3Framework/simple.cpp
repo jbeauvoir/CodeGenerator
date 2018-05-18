@@ -4,10 +4,10 @@
 #include "Object.h"
 using namespace std;
 
-Object listop_ex1 ()
+Object listop_ex1 (Object val1 ,Object val2 ,Object val3)
 {
 	Object __RetVal;
-	__RetVal = Object("a") 	
-return __RetVal;
+	__RetVal = Object("a");
+	return __RetVal;
 }
 

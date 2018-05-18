@@ -6,7 +6,7 @@ using namespace std;
 
 CodeGen::CodeGen (string filename, LexicalAnalyzer * L)
 {
-        cout << "Code Gen Called" << endl;
+
 	lex = L;
 
 	string cppname = filename.substr (0, filename.length()-3) + ".cpp"; 
@@ -33,7 +33,7 @@ CodeGen::~CodeGen ()
 /********************************************************************************/
 void CodeGen::WriteCode (int tabs, string code)
 {
-        cout << "Write Code Called" << endl;
+
 	for (int t = 0; t < tabs; t++)
 		cpp << '\t';
 	cpp << code;

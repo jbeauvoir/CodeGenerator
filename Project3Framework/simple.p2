@@ -2,10 +2,19 @@ Entering Program function; current token is: LPAREN_T
 Using Rule 1
 Entering define function; current token is: LPAREN_T
 Using Rule 2
+Entering param_list function; current token is: IDENT_T
+Using Rule 16
+Entering param_list function; current token is: IDENT_T
+Using Rule 16
+Entering param_list function; current token is: IDENT_T
+Using Rule 16
 Entering param_list function; current token is: RPAREN_T
 Using Rule 17
 Exiting param_list function; current token is: RPAREN_T
-Entering stmt function; current token is: IDENT_T
+Exiting param_list function; current token is: RPAREN_T
+Exiting param_list function; current token is: RPAREN_T
+Exiting param_list function; current token is: RPAREN_T
+Entering Stmt function; current token is: IDENT_T
 Using Rule 8
 Exiting Stmt function; current token is: RPAREN_T
 Entering stmt_list function; current token is: RPAREN_T

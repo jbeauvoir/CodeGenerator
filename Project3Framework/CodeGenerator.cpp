@@ -9,6 +9,8 @@ CodeGen::CodeGen (string filename, LexicalAnalyzer * L)
 
 	lex = L;
 
+	setIsFirstParamList(true);
+
 	string cppname = filename.substr (0, filename.length()-3) + ".cpp"; 
 	cpp.open (cppname.c_str());
 
@@ -38,4 +40,13 @@ void CodeGen::WriteCode (int tabs, string code)
 		cpp << '\t';
 	cpp << code;
 	cpp.flush();
+}
+
+void CodeGen::setIsFirstParamList(bool value)
+{
+  firstParamList = value;
+}
+bool CodeGen::getIsFirstParamList()
+{
+  return firstParamList;
 }

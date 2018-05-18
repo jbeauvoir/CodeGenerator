@@ -25,6 +25,7 @@ class SyntacticalAnalyzer
 	SyntacticalAnalyzer (char * filename);
 	~SyntacticalAnalyzer ();
     private:
+	string genString;
 	LexicalAnalyzer * lex;
 	CodeGen * cg;
 	ofstream p2file;
