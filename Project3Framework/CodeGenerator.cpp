@@ -42,7 +42,6 @@ void CodeGen::WriteCode (int tabs, string code)
 
 string CodeGen::GetEvaluator()
 {
-	cout << "In GetEval: " << eval << endl;
 	return eval;
 }
 
@@ -50,5 +49,4 @@ string CodeGen::GetEvaluator()
 void CodeGen::SetEvaluator(string evaluator)
 {
 	eval = evaluator;
-	cout << "eval: " << eval << endl;
 }
