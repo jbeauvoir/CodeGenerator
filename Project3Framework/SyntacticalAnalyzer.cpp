@@ -451,10 +451,16 @@ int SyntacticalAnalyzer::action()
 
 	if(token == IF_T){
 		p2file << "Using rule 24" << endl;
+
+		//cg->WriteCode(1, "if ("); // CG START
+		
 		token = lex->GetToken();
 		errors += stmt();
+		//cg->WriteCode(1, ")\n{\n"); // CG
 		errors += stmt();
+		//cg->WriteCode(0, );
 		errors += else_part();
+		
 	}
 	else if(token == COND_T){
 		p2file << "Using rule 25" << endl;
@@ -631,19 +637,21 @@ int SyntacticalAnalyzer::else_part()
 	}
 	
 	// RULE 18
-	// one of the firsts terminals is present
-	//	if ( itr1 != firsts.end() ) {
-	//  p2file << "Using Rule 18" << endl;
-	//  errors += stmt(); 
-	//	}
 	if(token == IDENT_T || token == LPAREN_T || token == NUMLIT_T || token == STRLIT_T || token == QUOTE_T){
+	  
 	  p2file << "Using rule 18" << endl;
-	  errors += stmt();
+
+	  cg->WriteCode(1, "else\n{\n"); // CG START
+	  errors += stmt(); //
+	  cg->WriteCode(0, "}\n"); // CG END 
+
 	}
+
 	// RULE 19 
 	else if( token == RPAREN_T ) {
 	  p2file << "Using Rule 19" << endl; 
 	}
+
 	else
 	{
 		errors++;
@@ -886,14 +894,16 @@ int SyntacticalAnalyzer::param_list()
 
 	        p2file << "Using Rule 16" << endl;
 		
-		
+		// When this if-statement is fulfilled 
+		// it means that there is more than one
+		// <param_list> 
 		if( !cg->getIsFirstParamList() )  // CG Start
 		  cg->WriteCode(0, " ,"); // 
 		
 		cg->WriteCode(0, "Object "); // 
 		genString = lex->GetLexeme(); // 
 		cg->WriteCode(0, genString); //
-		cg->setIsFirstParamList(false);
+		cg->setIsFirstParamList(false); // CG End 
 
 	  	token = lex->GetToken();
 

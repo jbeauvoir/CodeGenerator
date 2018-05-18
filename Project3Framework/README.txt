@@ -1,20 +1,32 @@
 Note: f implies the issue is fixed
 
 
-Jacques
+Jacques BEGIN
 
 Notes:
   - I added a ';' after <stmt> and <stmt_list>
+  
   - for <param_list> I created a getter and setter to 
   set and return a boolean value. This boolean value will
   signal to us if the <param_list> being taken in is the first
   or one of many. This is relevant because it tells us whether
   or not we need to print a comma that precedes the parameter.
+  
+  - careful using the "genString" variable in WriteCode, it may have something
+  stored in it you don't want to use.
+  
+  - With regards to the previous bullet, only use genString when 
+  you store a lexeme ( ex: genString = lex->GetLexeme() ). For other
+  strings just put the string in as a WriteCode paramater
+
 
 
 Problems:
 f - indent of the 'return __RetVal' is still off 
 f - after statement outputs an object there's a space then ';'
        example: Object("a") ; outputs instead of Object("a");
- 
- 
+  - Skipped production rule 20 -> not sure if anything needs to 
+    be done inside of it
+  - Production rule 18 not yet tested
+
+Jacques END
